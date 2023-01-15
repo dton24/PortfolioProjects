@@ -1,0 +1,185 @@
+*{
+  background-color:whitesmoke;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color:white;
+}
+
+
+#name{
+  font-size: 86px;
+  background-color:#141E30;
+}
+
+section {
+  border: 5px ridge azure;
+  border-radius: 5px;
+  padding: 30px;
+  background-color:#141E30;
+  max-width:1250px;
+  margin:auto;
+
+}
+
+a:hover{
+  color:darkorange;
+}
+
+a {
+  text-decoration:none;
+  background-color:#141E30;
+}
+.Nav a {
+  display: block;
+  color: white;
+  text-align: left;
+  float:left;
+  padding: 14px 16px;
+  font-weight: bold;
+  font-size: 14px;
+  font-family:'Courier New', Courier, monospace;
+}
+
+.Nav a:hover {
+  background-color:Blue;
+}
+h1,h3{
+  text-align:center;
+  background-color:#141E30;
+}
+
+h3 #skills{
+  text-align:left;
+  background-color:#141E30;
+}
+.dylan_pic{
+  text-align:center;
+  background-color:#141E30;
+}
+.pics{
+  text-align:center;
+  background-color:#141E30;
+}
+
+.title{
+  font-size: 32px;
+  background-color:#141E30;
+  text-align:center;
+}
+
+p{
+  font-size: 22px;
+  line-height:2;
+  background-color:#141E30;
+}
+
+#college .img{
+  position: relative;
+  top: -40px;
+  left: -50px;
+  background-color:#141E30;
+}
+
+.img{
+  float:right;
+  position: relative;
+  top: 50px;
+  background-color:#141E30;
+}
+
+#certifications{
+  text-align:center;
+  background-color:#141E30;
+}
+
+#caption{
+  text-align:center;
+  opacity: 0.7;
+  background-color:#141E30;
+}
+
+footer{
+  line-height:1;
+}
+
+#adjectives{
+  font-size: 36px;
+  line-height:0.1px;
+  text-align: center;
+  opacity: 0.7;
+  background-color:#141E30;
+}
+
+#name a{
+  line-height:0;
+  background-color:#141E30;
+}
+
+ul,li,strong,em{
+  background-color:#141E30;
+}
+
+footer h3, footer a{
+  background-color:whitesmoke;
+  color: black;
+}
+
+footer h3 a{
+  margin:3px;
+}
+
+#caption{
+  opacity: 0.7;
+}
+
+.bold{
+  color: Crimson;
+}
+
+li {
+  font-size:18px;
+}
+
+.list{
+  font-size: 22px;
+}
+
+#Webdev{
+  float:right;
+  position:relative;
+  top: -160px;
+  background-color:#141E30;
+}
+
+#awsrds{
+  float:right;
+  position:relative;
+  top: -160px;
+  margin-right: 50px;
+  background-color:#141E30;
+}
+
+#mysqlpic{
+  float:right;
+  position:relative;
+  top: -140px;
+  margin-right: 50px;
+  background-color:#141E30;
+}
+
+#certifications .title{
+  float:right;
+  position:relative;
+  right:-275px;
+}
+
+img, figure{
+  background-color:#141E30;
+}
+
+.end{
+  background-color:whitesmoke;
+}
+
+#collegepics{
+  text-align:center;
+}

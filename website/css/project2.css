@@ -1,0 +1,18 @@
+section {
+    border: 5px ridge azure;
+    border-radius: 5px;
+    padding: 30px;
+    background-color:#141E30;
+    max-width:1250px;
+    margin:auto;
+}
+
+*{
+    background-color:whitesmoke;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color:white;
+  }
+
+  h1{
+    font-size: 108px;
+  }
