@@ -1,5 +1,92 @@
+-- 1. Average IMDb score, average budget, and average gross for 1999 and 2019 (adjusted for inflation)
+
 SELECT year, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget),2)*1.5364 AS avg_budget, 
 ROUND(AVG(gross),2)*1.5364 AS avg_gross FROM movie WHERE year = 1999 UNION
 SELECT year, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget),2) AS avg_budget, 
 ROUND(AVG(gross),2) AS avg_gross FROM movie WHERE year = 2019;
+
+-- 2. Highest-grossing (total gross) genres each year? Include average IMDb score and budget. Which genres rely more on quality (high IMDb score)? Which genre of movies had the largest “gross-to-budget” ratio? 
+
+SELECT year, genre, ROUND(SUM(gross)*1.5364,1) AS total_gross, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget)*1.5364,2) AS avg_budget, ROUND(SUM(gross)/SUM(budget),2) AS gross_to_budget_ratio
+FROM movie WHERE year = 1999 GROUP BY year, genre UNION SELECT year, genre, ROUND(SUM(gross),1) AS total_gross, ROUND(AVG(imdb_score),3) AS avg_imdb_score, 
+ROUND(AVG(budget),1) AS avg_budget, ROUND(SUM(gross)/SUM(budget),2) AS gross_to_budget_ratio FROM movie WHERE year = 2019 GROUP BY year, genre ORDER BY year, total_gross DESC;
+
+-- 3. What are the highest grossing (total gross) genres per month? Include average imdb score and budget. Based on this, which genres should be released in each month? Which genres rely more on quality (high imdb score)? Which genre of movies had the largest gross margin ratio? Does IMDb score affect the profits a movie genre makes in each month?  Compare and analyze 1999 vs 2019.
+
+SELECT month, year, genre, ROUND(SUM(gross)*1.5364,2) AS total_gross, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget)*1.5364,2) AS avg_budget, 
+ROUND(SUM(gross)/SUM(budget),2) AS gross_to_budget_ratio FROM movie WHERE year = 1999 GROUP BY month, year, genre
+UNION SELECT month, year,genre, ROUND(SUM(gross),2) AS total_gross, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget),2) AS avg_budget, ROUND(SUM(gross)/SUM(budget),2) AS gross_to_budget_ratio FROM movie WHERE year = 2019 GROUP BY month, year, genre ORDER BY total_gross DESC;
+
+-- 4. For each year, find the average runtime of movies under 90 minutes and over 90 minutes. Find the total profit of these movies, as well as the average IMDb score. Do shorter or longer movie runtimes (>90 min, or <90 min) generate the most profits? Do longer runtimes (>90) negatively or positively affect a movie’s success? Do runtimes affect a movie's quality?
+
+WITH movie_runtime AS (SELECT title, year,  (gross-budget)*1.5364 AS profit, runtime, imdb_score
+FROM movie WHERE year = 1999 UNION SELECT title, year, gross-budget AS profit, runtime,imdb_score FROM 
+movie WHERE year = 2019 ORDER BY profit DESC) SELECT year, AVG(runtime) AS avg_runtime, profit, 
+AVG(imdb_score) AS avg_imdb_score FROM movie_runtime WHERE runtime < 90 GROUP BY year UNION
+SELECT year, AVG(runtime) AS avg_runtime, profit, AVG(imdb_score) AS avg_imdb_score FROM 
+movie_runtime WHERE runtime > 90 GROUP BY year ORDER BY profit DESC;
+
+-- 5. What runtime (<90 min, >90 min) will generate the most profits within each genre?
+
+WITH runtime_analysis AS (SELECT genre, year,  (gross-budget)*1.5364 AS profit, runtime, imdb_score
+FROM movie WHERE year = 1999 UNION SELECT genre, year, gross - budget AS profit, runtime,imdb_score FROM 
+movie WHERE year = 2019 ORDER BY profit DESC) SELECT year, genre, AVG(runtime) AS avg_runtime, AVG(profit) AS avg_profit FROM runtime_analysis WHERE runtime < 90 GROUP BY year, genre UNION SELECT year,genre, AVG(runtime) AS avg_runtime, 
+AVG(profit) AS avg_profit FROM runtime_analysis WHERE runtime > 90 GROUP BY year, genre ORDER BY genre, year, avg_profit DESC;
+
+-- 6a) Who were the highest grossing stars in 1999 and 2019 (based on gross per star)?  
+
+CREATE TABLE top_stars AS SELECT year, star, SUM(gross)*1.5364 AS gross FROM movie WHERE year = 1999 GROUP BY star 
+UNION SELECT year, star, SUM(gross) AS gross FROM movie WHERE year = 2019 GROUP BY star ORDER BY gross DESC;
+
+-- 6b) Out of the top 25 stars from the query above, how many were in 1999 compared to 2019? 
+
+WITH top_25_stars AS(SELECT * FROM top_stars ORDER BY gross DESC LIMIT 25) SELECT year, COUNT(year) 
+FROM top_25_stars GROUP BY year;
+
+-- 6c) What is the combined gross (movies they appear in) from the top 10 stars in each year and how do they compare?
+
+SELECT 1999 as year, (SELECT SUM(gross) FROM top_stars WHERE year = 1999 ORDER BY gross DESC LIMIT 10) as total_gross_1999, 2019 as year, 
+(SELECT SUM(gross) FROM top_stars WHERE year = 2019 ORDER BY gross DESC LIMIT 10) as total_gross_2019,
+(SELECT SUM(gross) FROM top_stars WHERE year = 2019 ORDER BY gross DESC LIMIT 10) / (SELECT SUM(gross) 
+FROM top_stars WHERE year = 1999 ORDER BY gross DESC LIMIT 10) as gross_ratio,
+(SELECT SUM(gross) FROM top_stars WHERE year = 2019 ORDER BY gross DESC LIMIT 10) - (SELECT SUM(gross)          FROM top_stars WHERE year = 1999) AS gross_difference;
+
+-- 6d) Did the average imdb score affect how much money their (the top 10 stars from each year) movies would make?
+
+WITH stars AS (SELECT year, star, SUM(gross)*1.5364 AS gross, imdb_score FROM movie WHERE year = 1999 GROUP BY star 
+UNION 
+SELECT year, star, SUM(gross) AS gross, imdb_score FROM movie WHERE year = 2019 GROUP BY star ORDER BY gross DESC)(SELECT year, SUM(gross), AVG(imdb_score) FROM stars WHERE year = 1999 GROUP BY year ORDER BY gross DESC LIMIT 10) 
+UNION 
+(SELECT year, SUM(gross), AVG(imdb_score) FROM stars WHERE year = 2019 GROUP BY year ORDER BY gross DESC LIMIT 10);
+
+-- 6e) What genres were the most popular movie stars (top 20 highest grossing stars from each year) in? 
+
+WITH genre_stars AS((SELECT year, genre, star, SUM(gross)*1.5364 as total_gross FROM movie WHERE year = 1999 GROUP BY star ORDER BY total_gross DESC LIMIT 20)
+UNION (SELECT year, genre, star, SUM(gross) AS total_gross FROM movie WHERE year = 2019 GROUP BY star ORDER BY total_gross DESC LIMIT 20))
+SELECT year, genre, COUNT(genre) FROM genre_stars GROUP BY year, genre ORDER BY year, COUNT(genre) DESC;
+
+-- 8) Do directors impact how much money their movies make? How is it different for each year (1999 & 2019)? Did the best directors make the most money (1999 vs. 2019)? Directors will be grouped based on the quality of movies they make (IMDb score).
+
+SELECT year, director, AVG(imdb_score) AS avg_imdb_score, AVG(gross*1.5364) AS total_gross FROM movie WHERE year = 1999
+GROUP BY director UNION SELECT year, director, AVG(imdb_score) AS avg_imdb_score, AVG(gross) AS avg_gross
+FROM movie WHERE year = 2019 GROUP BY director ORDER BY avg_imdb_score DESC;
+
+-- 9) What is the affect of ratings (G, PG etc.) on gross profits? What is the average budget and imdb score for each rating? 
+
+SELECT year, rating, SUM(gross*1.5364) AS total_gross, AVG(budget*1.5364) AS avg_budget, AVG(imdb_score) FROM movie WHERE year = 1999 GROUP BY rating
+UNION SELECT year, rating, SUM(gross) AS total_gross, AVG(budget) AS avg_budget, AVG(imdb_score) FROM movie WHERE year = 2019 GROUP BY rating ORDER BY year, total_gross DESC;
+
+-- 10) Which countries creates the highest/lowest grossing movies? How about their budget?
+
+SELECT 1999 AS year, country, SUM(gross*1.5364) AS total_gross, SUM(budget*1.5364) AS total_budget FROM movie WHERE year = 1999 
+GROUP BY country UNION SELECT 2019 AS year, country, SUM(gross) AS total_gross, SUM(budget) AS total_budget FROM movie WHERE 
+year = 2019 GROUP BY country ORDER BY year, total_gross DESC;
+
+-- 11) What studio creates the highest grossing movies? What are their average movie budgets?
+
+SELECT year, studio, SUM(gross*1.5364) AS total_gross, AVG(budget*1.5364) AS avg_budget, country
+FROM movie WHERE year = 1999 GROUP BY studio UNION 
+SELECT year, studio, SUM(gross) AS total_gross, AVG(budget) AS avg_budget, country
+FROM movie WHERE year = 2019 GROUP BY studio ORDER BY YEAR, total_gross DESC;
+
 
