@@ -1,0 +1,5 @@
+SELECT year, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget),2)*1.5364 AS avg_budget, 
+ROUND(AVG(gross),2)*1.5364 AS avg_gross FROM movie WHERE year = 1999 UNION
+SELECT year, ROUND(AVG(imdb_score),3) AS avg_imdb_score, ROUND(AVG(budget),2) AS avg_budget, 
+ROUND(AVG(gross),2) AS avg_gross FROM movie WHERE year = 2019;
+
