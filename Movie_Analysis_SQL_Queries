@@ -89,4 +89,9 @@ FROM movie WHERE year = 1999 GROUP BY studio UNION
 SELECT year, studio, SUM(gross) AS total_gross, AVG(budget) AS avg_budget, country
 FROM movie WHERE year = 2019 GROUP BY studio ORDER BY YEAR, total_gross DESC;
 
-
+-- 12) Genre Gross Proportion to Total Gross in 1999 & 2019
+SELECT year, genre, SUM(gross * 1.5364) AS genre_gross, (SELECT SUM(gross * 1.5364) FROM movie WHERE year = 1999) AS total_gross,
+(SUM(gross * 1.5364) / (SELECT SUM(gross * 1.5364) FROM movie WHERE year = 1999)) * 100 AS percentage FROM movie WHERE 
+year = 1999 GROUP BY year, genre UNION ALL SELECT year, genre, SUM(gross) AS genre_gross, (SELECT SUM(gross) FROM movie WHERE year = 2019) AS total_gross,
+(SUM(gross) / (SELECT SUM(gross) FROM movie WHERE year = 2019)) * 100 AS percentage FROM movie
+WHERE year = 2019 GROUP BY year, genre ORDER BY genre_gross DESC;
