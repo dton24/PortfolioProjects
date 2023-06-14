@@ -95,3 +95,9 @@ SELECT year, genre, SUM(gross * 1.5364) AS genre_gross, (SELECT SUM(gross * 1.53
 year = 1999 GROUP BY year, genre UNION ALL SELECT year, genre, SUM(gross) AS genre_gross, (SELECT SUM(gross) FROM movie WHERE year = 2019) AS total_gross,
 (SUM(gross) / (SELECT SUM(gross) FROM movie WHERE year = 2019)) * 100 AS percentage FROM movie
 WHERE year = 2019 GROUP BY year, genre ORDER BY genre_gross DESC;
+
+-- 13) Top 10 Highest Rated Directors and their Genres in 1999
+SELECT year, director, genre, AVG(imdb_score) AS score FROM movie WHERE year = 1999 GROUP BY director, genre ORDER BY score DESC LIMIT 10;
+
+-- 14) Top 10 Highest Rated Directors and their Genres in 2019
+SELECT year, director, genre, AVG(imdb_score) AS score FROM movie WHERE year = 2019 GROUP BY director, genre ORDER BY score DESC LIMIT 10;
