@@ -104,18 +104,18 @@ SELECT year, director, genre, AVG(imdb_score) AS score FROM movie WHERE year = 2
 
 -- 15) Average of the Weighted Averages per Rating
 WITH rating_stats AS (
-    SELECT rating, SUM(gross) AS total_gross, COUNT(*) AS num_movies
+    SELECT rating, year, SUM(gross) AS total_gross, COUNT(*) AS num_movies
     FROM movie
-    GROUP BY rating
+    WHERE year IN (1999, 2019) -- Only consider movies from 1999 and 2019
+    GROUP BY rating, year
 ),
 weighted_averages AS (
-    SELECT movie.title, movie.rating, 
+    SELECT movie.title, movie.rating, movie.year,
        rating_stats.total_gross / rating_stats.num_movies as weighted_average_gross
     FROM movie
-    JOIN rating_stats ON movie.rating = rating_stats.rating
+    JOIN rating_stats ON movie.rating = rating_stats.rating AND movie.year = rating_stats.year
 )
-SELECT rating, AVG(weighted_average_gross)
+SELECT rating, year, AVG(weighted_average_gross) AS avg_weighted_avg
 FROM weighted_averages
-GROUP BY rating;
-
+GROUP BY rating, year ORDER BY year, avg_weighted_avg DESC;
 
