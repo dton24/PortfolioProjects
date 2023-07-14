@@ -102,14 +102,20 @@ SELECT year, director, genre, AVG(imdb_score) AS score FROM movie WHERE year = 1
 -- 14) Top 10 Highest Rated Directors and their Genres in 2019
 SELECT year, director, genre, AVG(imdb_score) AS score FROM movie WHERE year = 2019 GROUP BY director, genre ORDER BY score DESC LIMIT 10;
 
--- 15) Weighted Average for Each Movie Rating
-WITH weights AS (
-    SELECT rating, COUNT(rating) / (SELECT COUNT(*) FROM movie) as weight
+-- 15) Average of the Weighted Averages per Rating
+WITH rating_stats AS (
+    SELECT rating, SUM(gross) AS total_gross, COUNT(*) AS num_movies
     FROM movie
     GROUP BY rating
+),
+weighted_averages AS (
+    SELECT movie.title, movie.rating, 
+       rating_stats.total_gross / rating_stats.num_movies as weighted_average_gross
+    FROM movie
+    JOIN rating_stats ON movie.rating = rating_stats.rating
 )
-SELECT weights.rating, SUM(movie.Gross * weights.weight) as WeightedAverageGross
-FROM movie
-JOIN weights ON movie.rating = weights.rating
-GROUP BY weights.rating ORDER BY WeightedAverageGross DESC;
+SELECT rating, AVG(weighted_average_gross)
+FROM weighted_averages
+GROUP BY rating;
+
 
